@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: crf-jira
+# Cookbook Name:: crf-crowd
 # Recipe:: default
 #
 # Copyright 2015 Crossroads Foundation
@@ -29,156 +29,151 @@ include_recipe 'apache2::mod_proxy_ajp'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'database::postgresql'
 
-user node['jira']['run_user'] do
-  comment "User that JIRA runs under"
+user node['crowd']['run_user'] do
+  comment "User that Crowd runs under"
 end
 
-directory node['jira']['install_path'] do
+directory node['crowd']['install_path'] do
   recursive true
-  owner node['jira']['run_user']
+  owner node['crowd']['run_user']
 end
 
-directory node['jira']['shared_path'] do
+directory node['crowd']['shared_path'] do
   recursive true
-  owner node['jira']['run_user']
+  owner node['crowd']['run_user']
 end
 
-# Create the JIRA database user.
-postgresql_database_user node['jira']['database_user'] do
+# Create the Crowd database user.
+postgresql_database_user node['crowd']['database_user'] do
   connection(
-    :host      => node['jira']['database_host'],
-    :port      => node['jira']['database_port'], 
-    :username  => node['jira']['database_superuser'],
-    :password  => node['jira']['database_superuser_password']
+    :host      => node['crowd']['database_host'],
+    :port      => node['crowd']['database_port'], 
+    :username  => node['crowd']['database_superuser'],
+    :password  => node['crowd']['database_superuser_password']
   )
-  password node['jira']['database_password']
+  password node['crowd']['database_password']
   action   :create
-  only_if { node['jira']['create_database'] == true }
+  only_if { node['crowd']['create_database'] == true }
 end
 
-# Create the JIRA database.
-postgresql_database node['jira']['database_name'] do
+# Create the Crowd database.
+postgresql_database node['crowd']['database_name'] do
   connection(
-    :host      => node['jira']['database_host'],
-    :port      => node['jira']['database_port'],
-    :username  => node['jira']['database_superuser'],
-    :password  => node['jira']['database_superuser_password']
+    :host      => node['crowd']['database_host'],
+    :port      => node['crowd']['database_port'],
+    :username  => node['crowd']['database_superuser'],
+    :password  => node['crowd']['database_superuser_password']
   )
-  owner  node['jira']['database_user']
+  owner  node['crowd']['database_user']
   action :create
-  only_if { node['jira']['create_database'] == true }
+  only_if { node['crowd']['create_database'] == true }
 end
 
-unless FileTest.exists?("#{node['jira']['install_path']}/#{node['jira']['version']}")
+unless FileTest.exists?("#{node['crowd']['install_path']}/#{node['crowd']['version']}")
 
-  remote_file 'jira' do
-    path "#{Chef::Config['file_cache_path']}/jira.tar.gz"
-    source "https://downloads.atlassian.com/software/jira/downloads/atlassian-jira-software-#{node['jira']['version']}-jira-#{node['jira']['version']}.tar.gz"
+  remote_file 'crowd' do
+    path "#{Chef::Config['file_cache_path']}/crowd.tar.gz"
+    source "https://www.atlassian.com/software/crowd/downloads/binary/atlassian-crowd-#{node['crowd']['version']}.tar.gz" 
   end
 
-  bash 'untar-jira' do
-    code "(cd #{Chef::Config['file_cache_path']}; tar zxvf #{Chef::Config['file_cache_path']}/jira.tar.gz)"
+  bash 'untar-crowd' do
+    code "(cd #{Chef::Config['file_cache_path']}; tar zxvf #{Chef::Config['file_cache_path']}/crowd.tar.gz)"
   end
 
-  bash 'install-jira' do
-    code "mv #{Chef::Config['file_cache_path']}/atlassian-jira-software-#{node['jira']['version']}-standalone #{node['jira']['install_path']}/#{node['jira']['version']}"
+  bash 'install-crowd' do
+    code "mv #{Chef::Config['file_cache_path']}/atlassian-crowd-#{node['crowd']['version']} #{node['crowd']['install_path']}/#{node['crowd']['version']}"
   end
 
-  bash 'set-jira-permissions' do
-    code "chown -R #{node['jira']['run_user']} #{node['jira']['install_path']}/#{node['jira']['version']} #{node['jira']['shared_path']}"
+  bash 'set-crowd-permissions' do
+    code "chown -R #{node['crowd']['run_user']} #{node['crowd']['install_path']}/#{node['crowd']['version']} #{node['crowd']['shared_path']}"
   end
 
-  bash 'cleanup-jira' do
-    code "rm -rf #{Chef::Config['file_cache_path']}/jira.tar.gz"
+  bash 'cleanup-crowd' do
+    code "rm -rf #{Chef::Config['file_cache_path']}/crowd.tar.gz"
   end
 
 end
 
-link "#{node['jira']['install_path']}/current" do
-  to        "#{node['jira']['install_path']}/#{node['jira']['version']}"
-  link_type :symbolic
-end
-
-directory "#{node['jira']['install_path']}/#{node['jira']['version']}" do
+directory "#{node['crowd']['install_path']}/#{node['crowd']['version']}" do
   recursive true
-  owner node['jira']['run_user']
+  owner node['crowd']['run_user']
 end
 
-directory node['jira']['log_dir'] do
+directory node['crowd']['log_dir'] do
   recursive true
-  owner node['jira']['run_user']
+  owner node['crowd']['run_user']
   action :create
 end
 
-directory node['jira']['pid_dir'] do
+directory node['crowd']['pid_dir'] do
   recursive true
-  owner node['jira']['run_user']
+  owner node['crowd']['run_user']
   action :create
 end
 
-directory "#{node['jira']['install_path']}/current/logs" do
+directory "#{node['crowd']['install_path']}/current/logs" do
   action :delete
-  not_if do File.symlink?("#{node['jira']['install_path']}/current/logs") end
+  not_if do File.symlink?("#{node['crowd']['install_path']}/current/logs") end
 end
 
-link "#{node['jira']['install_path']}/current/logs" do
-  to        node['jira']['log_dir']
+link "#{node['crowd']['install_path']}/current/logs" do
+  to        node['crowd']['log_dir']
   link_type :symbolic
 end
 
-link "#{node['jira']['install_path']}/current/lib/postgresql-jdbc.jar" do
+link "#{node['crowd']['install_path']}/current/lib/postgresql-jdbc.jar" do
   to "/usr/share/java/postgresql#{node['postgresql']['version'].split('.').join}-jdbc.jar"
   link_type :symbolic
 end
 
-firewall_rule 'jira-ports' do
+firewall_rule 'crowd-ports' do
   protocol  :tcp
   port      [80, 443]
 end
 
-template '/usr/lib/systemd/system/jira.service' do
-  source   'jira.service.erb'
+template '/usr/lib/systemd/system/crowd.service' do
+  source   'crowd.service.erb'
 end
 
-service 'jira' do
+service 'crowd' do
   supports :start => true, :stop => true, :restart => true
   action [ :enable, :start ]
 end
 
-template "#{node['jira']['install_path']}/current/atlassian-jira/WEB-INF/classes/jira-application.properties" do
-  source   'jira-application.properties.erb'
-  owner    node['jira']['run_user']
+template "#{node['crowd']['install_path']}/current/atlassian-crowd/WEB-INF/classes/crowd-application.properties" do
+  source   'crowd-application.properties.erb'
+  owner    node['crowd']['run_user']
   mode     '0640'
-  notifies :reload, 'service[jira]'
+  notifies :reload, 'service[crowd]'
 end
 
 # Create the certificates.
-certificate_manage 'jira' do
-  data_bag      node['jira']['certificate']['data_bag']
-  data_bag_type node['jira']['certificate']['data_bag_type']
-  search_id     node['jira']['certificate']['search_id']
-  cert_file     node['jira']['certificate']['cert_file']
-  key_file      node['jira']['certificate']['key_file']
-  chain_file    node['jira']['certificate']['chain_file']
+certificate_manage 'crowd' do
+  data_bag      node['crowd']['certificate']['data_bag']
+  data_bag_type node['crowd']['certificate']['data_bag_type']
+  search_id     node['crowd']['certificate']['search_id']
+  cert_file     node['crowd']['certificate']['cert_file']
+  key_file      node['crowd']['certificate']['key_file']
+  chain_file    node['crowd']['certificate']['chain_file']
 end
 
-template "#{node['apache']['dir']}/sites-available/jira.conf" do
+template "#{node['apache']['dir']}/sites-available/crowd.conf" do
   source 'apache2.conf.erb'
   owner  node['apache']['user']
   group  node['apache']['user']
   mode   '0640'
   backup false
-  notifies :restart, 'service[jira]'
+  notifies :restart, 'service[crowd]'
 end
 
-template "#{node['jira']['install_path']}/current/conf/server.xml" do
+template "#{node['crowd']['install_path']}/current/conf/server.xml" do
   source 'server.xml.erb'
-  owner node['jira']['run_user']
+  owner node['crowd']['run_user']
   mode   '0640'
   backup false
-  notifies :restart, 'service[jira]'
+  notifies :restart, 'service[crowd]'
 end
 
-apache_site 'jira' do
+apache_site 'crowd' do
   enable true
 end

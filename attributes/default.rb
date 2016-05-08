@@ -1,5 +1,5 @@
 #
-## Cookbook Name:: crf-jira
+## Cookbook Name:: crf-crowd
 ## Recipe:: default
 ##
 ## Copyright 2015 Crossroads Foundation
@@ -20,31 +20,31 @@
 
 override['apache']['default_site_enabled'] = false
 
-default['jira']['version']                      = '5.9.5'
-default['jira']['install_path']                 = '/opt/jira'
-default['jira']['shared_path']                  = '/var/jira'
-default['jira']['run_user']                     = 'jira'
-default['jira']['log_dir']                      = '/var/log/jira'
-default['jira']['pid_dir']                      = "#{node['jira']['install_path']}/current/work"
-default['jira']['create_database']              = false
-default['jira']['database_name']                = 'jira'
-default['jira']['database_user']                = 'jira'
-default['jira']['database_password']            = secure_password
-default['jira']['database_host']                = '127.0.0.1'
-default['jira']['database_port']                = node['postgresql']['config']['port']
-default['jira']['database_superuser']           = 'postgres'
-default['jira']['database_superuser_password']  = node['postgresql']['password']['postgres']
-default['jira']['bind_tomcat_port']             = '8000'
-default['jira']['bind_http_port']               = '8080'
-default['jira']['bind_ajp_port']                = '8009'
-default['jira']['context_path']                 = '/'
-default['jira']['hostname']                     = 'jira'
-default['jira']['domainname']                   = "#{node['jira']['hostname']}.#{node['domain']}"
-default['jira']['bind_address']                 = '_default_'
-default['jira']['certificate']['data_bag']      = nil
-default['jira']['certificate']['data_bag_type'] = 'unencrypted'
-default['jira']['certificate']['search_id']     = 'cups'
-default['jira']['certificate']['cert_file']     = "#{node['fqdn']}.pem"
-default['jira']['certificate']['key_file']      = "#{node['fqdn']}.key"
-default['jira']['certificate']['chain_file']    = "#{node['hostname']}-bundle.crt"
+default['crowd']['version']                      = '2.3.4'
+default['crowd']['install_path']                 = '/opt/crowd'
+default['crowd']['shared_path']                  = '/var/crowd'
+default['crowd']['run_user']                     = 'crowd'
+default['crowd']['log_dir']                      = '/var/log/crowd'
+default['crowd']['pid_dir']                      = "#{node['crowd']['install_path']}/current/work"
+default['crowd']['create_database']              = false
+default['crowd']['database_name']                = 'crowd'
+default['crowd']['database_user']                = 'crowd'
+default['crowd']['database_password']            = secure_password
+default['crowd']['database_host']                = '127.0.0.1'
+default['crowd']['database_port']                = node['postgresql']['config']['port']
+default['crowd']['database_superuser']           = 'postgres'
+default['crowd']['database_superuser_password']  = node['postgresql']['password']['postgres']
+default['crowd']['bind_tomcat_port']             = '8000'
+default['crowd']['bind_http_port']               = '8080'
+default['crowd']['bind_ajp_port']                = '8009'
+default['crowd']['context_path']                 = '/'
+default['crowd']['hostname']                     = 'crowd'
+default['crowd']['domainname']                   = "#{node['crowd']['hostname']}.#{node['domain']}"
+default['crowd']['bind_address']                 = '_default_'
+default['crowd']['certificate']['data_bag']      = nil
+default['crowd']['certificate']['data_bag_type'] = 'unencrypted'
+default['crowd']['certificate']['search_id']     = 'cups'
+default['crowd']['certificate']['cert_file']     = "#{node['fqdn']}.pem"
+default['crowd']['certificate']['key_file']      = "#{node['fqdn']}.key"
+default['crowd']['certificate']['chain_file']    = "#{node['hostname']}-bundle.crt"
 

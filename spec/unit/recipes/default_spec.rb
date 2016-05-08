@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: jira
+# Cookbook Name:: crowd
 # Spec:: default
 #
 # Copyright 2015 Crossroads Foundation
@@ -19,7 +19,7 @@
 
 require 'spec_helper'
 
-describe 'jira::default' do
+describe 'crowd::default' do
 
   context 'When all attributes are default, on an unspecified platform' do
 
